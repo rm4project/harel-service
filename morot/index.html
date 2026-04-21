@@ -7,8 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="קריאת שירות" />
   <title>פתיחת קריאת שירות – הראל</title>
-  <link rel="manifest" href="manifest-morot.json" />
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #0f0f1a;
@@ -146,6 +145,10 @@
       .content { padding: 1rem; }
     }
   </style>
+  <meta property="og:title" content="פתיחת קריאת שירות – הראל" />
+  <meta property="og:description" content="פתח קריאת שירות ללבורנט או אב הבית" />
+  <meta property="og:type" content="website" />
+  <meta name="description" content="פתח קריאת שירות ללבורנט או אב הבית" />
 </head>
 <body>
 
@@ -157,11 +160,9 @@
 
 <div class="content">
   <div class="page-header">
-    <div class="page-title">פתיחת קריאת שירות</div>
-    <div class="page-sub">הקריאה תגיע ישירות לאחראי הרלוונטי</div>
+    <div class="page-title">פתיחת קריאת שירות פנים – אולפנית הראל כפ"ס</div>
   </div>
 
-  <div id="toast" class="toast">✓ הקריאה נשלחה! הצוות הרלוונטי יטפל בהקדם.</div>
   <div id="error-toast" class="error-toast">שגיאה בשליחה, נסה/י שנית.</div>
 
   <div class="row2">
@@ -182,7 +183,7 @@
     <span class="saved-bar-change" onclick="clearSavedEmail()">שנה</span>
   </div>
   <div class="form-group" id="email-field-group">
-    <label class="form-label">מייל לקבלת עדכון כשהקריאה טופלת</label>
+    <label class="form-label">מייל לקבלת עדכון כשהקריאה טופלה (לא חובה)</label>
     <input class="form-input" id="f-email" type="email" placeholder="your@email.com" />
     <div style="font-size:11px;color:var(--text3);margin-top:5px;">המייל יישמר על המכשיר הזה לפעמים הבאות</div>
   </div>
@@ -191,11 +192,11 @@
     <div class="type-grid">
       <div class="type-card" id="card-tech" onclick="selectType('tech')">
         <div class="type-card-icon">💻</div>
-        <div class="type-card-label">טכנולוגיה</div>
+        <div class="type-card-label">מחשוב</div>
       </div>
       <div class="type-card" id="card-maint" onclick="selectType('maint')">
         <div class="type-card-icon">🔧</div>
-        <div class="type-card-label">תחזוקה</div>
+        <div class="type-card-label">אב-בית</div>
       </div>
     </div>
   </div>
@@ -218,6 +219,7 @@
     </div>
   </div>
 
+  <div id="toast" class="toast" style="margin-bottom:0.75rem;">✓ הקריאה נשלחה! הצוות הרלוונטי יטפל בהקדם.</div>
   <button class="submit-btn" id="submit-btn" onclick="submitTicket()">שלח קריאה →</button>
 </div>
 
@@ -262,9 +264,9 @@ function getSavedEmail() {
   } catch(e) { return ''; }
 }
 
-function saveUser(name, cls, email) {
+function saveUser(name, email) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ name, cls, email }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ name, email }));
   } catch(e) {}
 }
 
@@ -354,7 +356,7 @@ async function submitTicket() {
   setTimeout(() => toast.style.display = 'none', 4000);
 }
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('../sw.js');
+
 loadSavedUser();
 </script>
 </body>
