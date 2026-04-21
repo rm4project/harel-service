@@ -219,7 +219,7 @@
     </div>
   </div>
 
-  <div id="toast" class="toast" style="margin-bottom:0.75rem;">✓ הקריאה נשלחה! הצוות הרלוונטי יטפל בהקדם.</div>
+  <div id="toast" class="toast" style="margin-bottom:0.75rem;"></div>
   <button class="submit-btn" id="submit-btn" onclick="submitTicket()">שלח קריאה →</button>
 </div>
 
@@ -314,6 +314,11 @@ async function submitTicket() {
   const emailInput = document.getElementById('f-email').value.trim();
   const email = emailInput || getSavedEmail();
   if (!name || !cls || !selectedType || !desc) { alert('נא למלא את כל השדות ולבחור סוג קריאה'); return; }
+  if (emailInput && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput)) {
+    alert('כתובת המייל אינה תקינה. אנא בדוק/י ונסה/י שנית.');
+    document.getElementById('f-email').focus();
+    return;
+  }
 
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
@@ -345,6 +350,8 @@ async function submitTicket() {
   document.getElementById('f-name').value = '';
   document.getElementById('f-class').value = '';
   document.getElementById('f-desc').value = '';
+  const sentType = selectedType;
+
   document.getElementById('quick-group').style.display = 'none';
   document.getElementById('card-tech').className = 'type-card';
   document.getElementById('card-maint').className = 'type-card';
@@ -352,8 +359,11 @@ async function submitTicket() {
   setPrio('normal');
 
   const toast = document.getElementById('toast');
+  toast.textContent = sentType === 'tech'
+    ? '✓ הקריאה נשלחה ללבורנט המחשבים, קריאתך תטופל בהקדם האפשרי'
+    : '✓ הקריאה נשלחה לאב הבית, קריאתך תטופל בהקדם האפשרי';
   toast.style.display = 'block';
-  setTimeout(() => toast.style.display = 'none', 4000);
+  setTimeout(() => toast.style.display = 'none', 5000);
 }
 
 
