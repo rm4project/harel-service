@@ -1,0 +1,9 @@
+/morot      /morot.html   200
+/morot/     /morot.html   200
+/tech       /tech.html    200
+/tech/      /tech.html    200
+/maint      /maint.html   200
+/maint/     /maint.html   200
+/admin      /admin.html   200
+/admin/     /admin.html   200
+/           /morot.html   200
