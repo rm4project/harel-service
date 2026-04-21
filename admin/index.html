@@ -736,13 +736,15 @@ async function executeReset() {
   const delDone = document.getElementById(pendingResetType+'-del-done').checked;
   let error = null;
 
+  // פתוחות — העבר לארכיון
   if (delOpen) {
-    const res = await sb.from('tickets').delete()
+    const res = await sb.from('tickets').update({ archived: true })
       .eq('type', pendingResetType).eq('done', false).eq('archived', false);
     error = res.error;
   }
+  // טופלו — העבר לארכיון
   if (!error && delDone) {
-    const res = await sb.from('tickets').delete()
+    const res = await sb.from('tickets').update({ archived: true })
       .eq('type', pendingResetType).eq('done', true).eq('archived', false);
     error = res.error;
   }
