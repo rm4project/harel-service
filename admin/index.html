@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f0f1a" />
+  <title>דוח מנהלת – הראל</title>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:#0f0f1a;--bg2:#16162a;--surface:#22223a;--surface2:#2a2a48;
+      --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+      --text:#f0f0f8;--text2:#9090b8;--text3:#5a5a88;
+      --accent:#7c6af7;--accent2:#a394ff;--accent-bg:rgba(124,106,247,0.12);
+      --green:#3dd68c;--green-bg:rgba(61,214,140,0.1);
+      --amber:#ffb347;--amber-bg:rgba(255,179,71,0.1);
+      --red:#ff6b6b;--red-bg:rgba(255,107,107,0.1);
+      --radius:14px;--radius-sm:8px;--font:'Heebo',sans-serif;
+      --transition:0.2s cubic-bezier(0.4,0,0.2,1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;}
+    .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 1.25rem;height:56px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;}
+    .topbar-title{font-size:15px;font-weight:600;}
+    .topbar-date{font-size:12px;color:var(--text2);margin-right:auto;}
+    .nav-btns{display:flex;gap:6px;}
+    .nav-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--font);transition:var(--transition);white-space:nowrap;}
+    .nav-btn.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent2);}
+    .nav-btn:hover:not(.active){background:var(--surface);color:var(--text);}
+    @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+    .live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+    .live-label{font-size:11px;color:var(--green);}
+    @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(61,214,140,0.5);}70%{box-shadow:0 0 0 8px rgba(61,214,140,0);}100%{box-shadow:0 0 0 0 rgba(61,214,140,0);}}
+    .content{padding:1.25rem;max-width:960px;margin:0 auto;}
+    .view{display:none;}.view.active{display:block;}
+
+    .big-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem;}
+    .big-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;display:flex;align-items:center;gap:14px;}
+    .big-stat-icon{font-size:28px;}
+    .big-stat-info{flex:1;}
+    .big-stat-name{font-size:12px;color:var(--text2);margin-bottom:4px;}
+    .big-stat-row{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;}
+    .big-num{font-size:28px;font-weight:700;}
+    .tech-color{color:var(--green);}
+    .maint-color{color:var(--amber);}
+    .big-sub{font-size:12px;color:var(--text3);}
+    .urgent-pill{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--red-bg);color:var(--red);font-weight:600;}
+
+    .global-filters{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.9rem 1rem;margin-bottom:1.25rem;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .gf-label{font-size:12px;color:var(--text2);font-weight:500;white-space:nowrap;}
+    .gf-btns{display:flex;gap:6px;flex-wrap:wrap;}
+    .gf-btn{padding:5px 13px;border-radius:20px;border:1.5px solid var(--border2);background:none;color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--font);transition:var(--transition);white-space:nowrap;}
+    .gf-btn.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent2);}
+    .gf-btn:hover:not(.active){background:var(--surface2);color:var(--text);}
+    .gf-divider{width:1px;height:24px;background:var(--border2);margin:0 4px;}
+    .status-btns .gf-btn.active-done{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+    .status-btns .gf-btn.active-urgent{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+    .col-header{display:flex;align-items:center;gap:6px;margin-bottom:0.9rem;flex-wrap:wrap;}
+    .col-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+    .dot-tech{background:var(--green);}
+    .dot-maint{background:var(--amber);}
+    .col-title{font-size:15px;font-weight:700;}
+    .col-count{font-size:12px;color:var(--text2);}
+    .col-actions{display:flex;gap:5px;margin-right:auto;flex-wrap:wrap;}
+    .action-btn{padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--text3);font-size:11px;cursor:pointer;font-family:var(--font);transition:var(--transition);white-space:nowrap;}
+    .action-btn:hover{background:var(--surface2);color:var(--text);}
+    .action-btn.danger:hover{background:var(--red-bg);border-color:rgba(255,107,107,0.3);color:var(--red);}
+
+    .tickets-list{display:flex;flex-direction:column;gap:8px;}
+    .ticket-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:0.9rem 1rem;animation:fadeIn 0.2s ease;}
+    .ticket-card.is-done{border-right:3px solid var(--green);opacity:1;}
+    .ticket-card.is-archived{opacity:0.4;border-style:dashed;}
+    .ticket-card.is-urgent{border-right:3px solid var(--red);}
+    .tc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px;}
+    .tc-badges{display:flex;gap:5px;flex-wrap:wrap;}
+    .badge{font-size:12px;padding:3px 8px;border-radius:20px;font-weight:500;}
+    .b-class{background:var(--surface2);color:var(--text2);}
+    .b-urgent{background:var(--red-bg);color:var(--red);}
+    .b-done{background:var(--green-bg);color:var(--green);}
+    .b-open{background:var(--accent-bg);color:var(--accent2);}
+    .ticket-card.is-progress{border-right:3px solid var(--amber);}
+    .b-arch{background:rgba(255,255,255,0.05);color:var(--text3);}
+    .tc-time{font-size:12px;color:var(--text3);white-space:nowrap;}
+    .tc-desc{font-size:15px;color:var(--text);margin-bottom:4px;line-height:1.4;}
+    .tc-reporter{font-size:13px;color:var(--text2);}
+    .tc-reporter strong{color:var(--text);}
+    .tc-note{font-size:13px;color:var(--text2);margin-top:5px;padding:5px 8px;background:var(--surface2);border-radius:6px;border-right:2px solid var(--border2);}
+    .empty-state{text-align:center;padding:2rem 1rem;color:var(--text3);font-size:13px;line-height:1.6;}
+
+    /* ARCHIVE */
+    .archive-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;}
+    .archive-title{font-size:18px;font-weight:700;margin-bottom:3px;}
+    .archive-sub{font-size:13px;color:var(--text2);}
+    .arch-actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+    .arch-filters{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.9rem 1rem;margin-bottom:1rem;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+
+    .arch-tabs{display:flex;gap:6px;margin-bottom:1rem;}
+    .arch-tab{padding:6px 16px;border-radius:20px;border:1.5px solid var(--border2);background:none;color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);transition:var(--transition);}
+    .arch-tab.active-tech{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+    .arch-tab.active-maint{background:var(--amber-bg);border-color:var(--amber);color:var(--amber);}
+    .arch-tab:hover:not(.active-tech):not(.active-maint){background:var(--surface);color:var(--text);}
+
+    .del-age-row{display:flex;gap:8px;align-items:center;margin-bottom:1rem;flex-wrap:wrap;padding:0.9rem 1rem;background:var(--red-bg);border:1px solid rgba(255,107,107,0.2);border-radius:var(--radius-sm);}
+    .del-age-label{font-size:12px;color:var(--red);font-weight:500;}
+    .del-age-btn{padding:5px 12px;border-radius:20px;border:1px solid rgba(255,107,107,0.3);background:none;color:var(--red);font-size:12px;cursor:pointer;font-family:var(--font);transition:var(--transition);}
+    .del-age-btn:hover{background:rgba(255,107,107,0.15);}
+
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:200;padding:1.25rem;}
+    .modal{background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--radius);padding:1.25rem;width:100%;max-width:400px;}
+    .modal-title{font-size:15px;font-weight:600;margin-bottom:8px;}
+    .modal-body{font-size:13px;color:var(--text2);margin-bottom:1.25rem;line-height:1.6;}
+    .modal-actions{display:flex;gap:8px;}
+    .modal-cancel{padding:9px 16px;border:1.5px solid var(--border2);background:none;color:var(--text2);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;font-family:var(--font);}
+    .modal-cancel:hover{background:var(--surface);color:var(--text);}
+    .modal-del{flex:1;padding:9px;background:var(--red-bg);border:1.5px solid rgba(255,107,107,0.3);color:var(--red);border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);}
+    .modal-del:hover{background:rgba(255,107,107,0.2);}
+    .modal-del:disabled{opacity:0.5;cursor:not-allowed;}
+
+
+    .reset-section{margin-top:2rem;padding:1rem;background:var(--red-bg);border:1px solid rgba(255,107,107,0.2);border-radius:var(--radius-sm);}
+    .reset-title{font-size:13px;font-weight:600;color:var(--red);margin-bottom:0.75rem;}
+    .reset-btns{display:flex;gap:8px;flex-wrap:wrap;}
+    .reset-btn{padding:7px 16px;border-radius:var(--radius-sm);border:1.5px solid rgba(255,107,107,0.3);background:none;color:var(--red);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);transition:var(--transition);}
+    .reset-btn:hover{background:rgba(255,107,107,0.15);}
+    .pwd-input{width:100%;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;color:var(--text);font-size:14px;font-family:var(--font);margin-bottom:10px;}
+    .pwd-input:focus{outline:none;border-color:var(--red);}
+    .pwd-input::placeholder{color:var(--text3);}
+    .pwd-error{font-size:12px;color:var(--red);margin-top:-6px;margin-bottom:8px;display:none;}
+    @media print {
+      body{background:#fff;color:#000;}
+      .topbar,.global-filters,.nav-btns,.col-actions,.arch-filters,.del-age-row,.arch-actions,.arch-tabs{display:none!important;}
+      .content{padding:0;max-width:100%;}
+      .ticket-card{background:#fff!important;border:1px solid #ddd!important;break-inside:avoid;opacity:1!important;}
+      .two-col{grid-template-columns:1fr 1fr;}
+    }
+    @media(max-width:640px){
+      .two-col{grid-template-columns:1fr;}
+      .big-stats{grid-template-columns:1fr;}
+      .content{padding:1rem;}
+      .global-filters,.arch-filters{flex-direction:column;align-items:flex-start;}
+    }
+  </style>
+  <meta property="og:title" content="דוח מנהלת – הראל" />
+  <meta property="og:description" content="דוח וניהול קריאות שירות" />
+  <meta property="og:type" content="website" />
+  <meta name="description" content="דוח וניהול קריאות שירות" />
+</head>
+<body>
+
+<div class="topbar">
+  <img src="data:image/jpeg;base64,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" style="height:40px;width:auto;" alt="אולפנית הראל" />
+  <span class="topbar-title">דוח מנהלת</span>
+  <span class="topbar-date" id="today-date"></span>
+  <div class="nav-btns">
+    <button class="nav-btn active" id="nav-main" onclick="showView('main',this)">דוח ראשי</button>
+    <button class="nav-btn" id="nav-archive" onclick="showView('archive',this)">🗄 ארכיון</button>
+    <button class="nav-btn" id="nav-reset" onclick="showView('reset',this)">⚠️ איפוס</button>
+  </div>
+  <span class="live-dot" style="margin-right:16px;"></span>
+  <span class="live-label">חי</span>
+</div>
+
+<div class="content">
+
+  <!-- ══ MAIN VIEW ══ -->
+  <div id="view-main" class="view active">
+    <div class="big-stats">
+      <div class="big-stat">
+        <span class="big-stat-icon">💻</span>
+        <div class="big-stat-info">
+          <div class="big-stat-name">לבורנט מחשבים</div>
+          <div class="big-stat-row">
+            <span class="big-num tech-color" id="tech-open">–</span><span class="big-sub">פתוחות</span>
+            <span class="big-num" style="font-size:20px;color:var(--amber)" id="tech-progress-count">–</span><span class="big-sub">בטיפול</span>
+            <span class="big-num" style="font-size:20px;color:var(--green)" id="tech-done-count">–</span><span class="big-sub">טופלו</span>
+            <span id="tech-urgent-pill" class="urgent-pill" style="display:none"></span>
+          </div>
+        </div>
+      </div>
+      <div class="big-stat">
+        <span class="big-stat-icon">🔧</span>
+        <div class="big-stat-info">
+          <div class="big-stat-name">אב הבית</div>
+          <div class="big-stat-row">
+            <span class="big-num maint-color" id="maint-open">–</span><span class="big-sub">פתוחות</span>
+            <span class="big-num" style="font-size:20px;color:var(--amber)" id="maint-progress-count">–</span><span class="big-sub">בטיפול</span>
+            <span class="big-num" style="font-size:20px;color:var(--green)" id="maint-done-count">–</span><span class="big-sub">טופלו</span>
+            <span id="maint-urgent-pill" class="urgent-pill" style="display:none"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="global-filters">
+      <span class="gf-label">זמן:</span>
+      <div class="gf-btns" id="time-btns">
+        <button class="gf-btn active" onclick="setTimeFilter('all',this)">הכל</button>
+        <button class="gf-btn" onclick="setTimeFilter('today',this)">היום</button>
+        <button class="gf-btn" onclick="setTimeFilter('week',this)">שבוע</button>
+        <button class="gf-btn" onclick="setTimeFilter('month',this)">חודש</button>
+      </div>
+      <div class="gf-divider"></div>
+      <span class="gf-label">סטטוס:</span>
+      <div class="gf-btns status-btns" id="status-btns">
+        <button class="gf-btn active" onclick="setStatusFilter('all',this)">הכל</button>
+        <button class="gf-btn" onclick="setStatusFilter('open',this)">פתוחות</button>
+        <button class="gf-btn" onclick="setStatusFilter('progress',this)">⏳ בטיפול</button>
+        <button class="gf-btn" onclick="setStatusFilter('done',this)">טופלו</button>
+        <button class="gf-btn" onclick="setStatusFilter('urgent',this)">דחופות</button>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <div class="col-header">
+          <div class="col-dot dot-tech"></div>
+          <div class="col-title">מחשוב</div>
+          <div class="col-count" id="tech-col-count"></div>
+          <div class="col-actions">
+            <button class="action-btn" onclick="exportCSV('tech')">CSV</button>
+            <button class="action-btn" onclick="printCol('tech')">🖨 הדפס</button>
+            <button class="action-btn danger" onclick="confirmArchive('tech')">🗑 מחק טופלו</button>
+          </div>
+        </div>
+        <div id="list-tech" class="tickets-list"><div class="empty-state">טוען...</div></div>
+      </div>
+      <div>
+        <div class="col-header">
+          <div class="col-dot dot-maint"></div>
+          <div class="col-title">תחזוקה</div>
+          <div class="col-count" id="maint-col-count"></div>
+          <div class="col-actions">
+            <button class="action-btn" onclick="exportCSV('maint')">CSV</button>
+            <button class="action-btn" onclick="printCol('maint')">🖨 הדפס</button>
+            <button class="action-btn danger" onclick="confirmArchive('maint')">🗑 מחק טופלו</button>
+          </div>
+        </div>
+        <div id="list-maint" class="tickets-list"><div class="empty-state">טוען...</div></div>
+      </div>
+    </div>
+  
+  </div>
+
+  <!-- ══ ARCHIVE VIEW ══ -->
+  <div id="view-archive" class="view">
+    <div class="archive-header">
+      <div>
+        <div class="archive-title">🗄 ארכיון קריאות</div>
+        <div class="archive-sub">כל הקריאות שטופלו – נשמרות כאן אוטומטית</div>
+      </div>
+      <div class="arch-actions">
+        <button class="action-btn" onclick="exportArchiveCSV()">ייצוא CSV</button>
+        <button class="action-btn" onclick="printArchive()">🖨 הדפס</button>
+      </div>
+    </div>
+
+    <div class="arch-filters">
+      <span class="gf-label">זמן:</span>
+      <div class="gf-btns" id="arch-time-btns">
+        <button class="gf-btn active" onclick="setArchTimeFilter('all',this)">הכל</button>
+        <button class="gf-btn" onclick="setArchTimeFilter('month',this)">חודש אחרון</button>
+        <button class="gf-btn" onclick="setArchTimeFilter('3months',this)">3 חודשים</button>
+        <button class="gf-btn" onclick="setArchTimeFilter('halfyear',this)">חצי שנה</button>
+        <button class="gf-btn" onclick="setArchTimeFilter('year',this)">שנה</button>
+      </div>
+    </div>
+
+    <div class="arch-tabs">
+      <button class="arch-tab active-tech" id="arch-tab-tech" onclick="setArchiveTab('tech')">
+        💻 מחשוב&nbsp;<span id="arch-tech-count" style="opacity:0.7">(0)</span>
+      </button>
+      <button class="arch-tab" id="arch-tab-maint" onclick="setArchiveTab('maint')">
+        🔧 תחזוקה&nbsp;<span id="arch-maint-count" style="opacity:0.7">(0)</span>
+      </button>
+    </div>
+
+    <div class="del-age-row">
+      <span class="del-age-label">🗑 מחק מהארכיון קריאות ישנות מעל:</span>
+      <button class="del-age-btn" onclick="confirmAgeDelete(30)">חודש</button>
+      <button class="del-age-btn" onclick="confirmAgeDelete(90)">3 חודשים</button>
+      <button class="del-age-btn" onclick="confirmAgeDelete(180)">חצי שנה</button>
+      <button class="del-age-btn" onclick="confirmAgeDelete(365)">שנה</button>
+      <button class="del-age-btn" onclick="confirmAgeDelete(730)">שנתיים</button>
+      <span style="flex:1"></span>
+      <button class="del-age-btn" style="border-color:rgba(255,107,107,0.5);margin-right:auto;" onclick="openArchiveReset()">⚠️ איפוס ארכיון מלא</button>
+    </div>
+
+    <div id="archive-list" class="tickets-list"><div class="empty-state">טוען...</div></div>
+  </div>
+
+  <!-- ══ RESET VIEW ══ -->
+  <div id="view-reset" class="view">
+    <div style="max-width:480px;margin:2rem auto;">
+      <div style="text-align:center;margin-bottom:2rem;">
+        <div style="font-size:40px;margin-bottom:10px;">⚠️</div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:6px;">איפוס נתונים</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;">בחר מה למחוק ולחץ על כפתור האיפוס.<br>לא ניתן לשחזר לאחר האיפוס.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="background:var(--surface);border:1.5px solid rgba(255,107,107,0.2);border-radius:var(--radius);padding:1.25rem;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
+            <span style="font-size:22px;">💻</span>
+            <div>
+              <div style="font-size:14px;font-weight:600;">לבורנט מחשבים</div>
+              <div style="font-size:12px;color:var(--text2)" id="reset-tech-count">טוען...</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+              <input type="checkbox" id="tech-del-open" style="width:16px;height:16px;" />
+              <span>מחק קריאות פתוחות</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+              <input type="checkbox" id="tech-del-done" style="width:16px;height:16px;" />
+              <span>מחק קריאות טופלו</span>
+            </label>
+          </div>
+          <button class="reset-btn" style="width:100%;text-align:center;" onclick="openReset('tech')">🗑 איפוס לבורנט מחשבים</button>
+        </div>
+        <div style="background:var(--surface);border:1.5px solid rgba(255,107,107,0.2);border-radius:var(--radius);padding:1.25rem;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
+            <span style="font-size:22px;">🔧</span>
+            <div>
+              <div style="font-size:14px;font-weight:600;">אב הבית</div>
+              <div style="font-size:12px;color:var(--text2)" id="reset-maint-count">טוען...</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+              <input type="checkbox" id="maint-del-open" style="width:16px;height:16px;" />
+              <span>מחק קריאות פתוחות</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+              <input type="checkbox" id="maint-del-done" style="width:16px;height:16px;" />
+              <span>מחק קריאות טופלו</span>
+            </label>
+          </div>
+          <button class="reset-btn" style="width:100%;text-align:center;" onclick="openReset('maint')">🗑 איפוס אב הבית</button>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;background:var(--surface);border:1.5px solid rgba(255,107,107,0.2);border-radius:var(--radius);padding:1.25rem;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
+          <span style="font-size:22px;">🖼️</span>
+          <div>
+            <div style="font-size:14px;font-weight:600;">מחיקת תמונות</div>
+            <div style="font-size:12px;color:var(--text2)" id="images-count">טוען...</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:0.75rem;">
+          <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px;">סנן לפי סטטוס:</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;" id="img-status-btns">
+            <button class="reset-btn" style="padding:5px 12px;font-size:12px;" onclick="setImgFilter('all',this)">הכל</button>
+            <button class="reset-btn" style="padding:5px 12px;font-size:12px;" onclick="setImgFilter('done',this)">טופלו בלבד</button>
+            <button class="reset-btn" style="padding:5px 12px;font-size:12px;" onclick="setImgFilter('progress',this)">בטיפול בלבד</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom:0.75rem;">
+          <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px;">סנן לפי גיל:</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="del-age-btn" onclick="deleteImages(30)">מעל חודש</button>
+            <button class="del-age-btn" onclick="deleteImages(90)">מעל 3 חודשים</button>
+            <button class="del-age-btn" onclick="deleteImages(180)">מעל חצי שנה</button>
+            <button class="del-age-btn" onclick="deleteImages(365)">מעל שנה</button>
+            <button class="del-age-btn" onclick="deleteImages(0)">כל התמונות</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+
+<!-- RESET MODAL -->
+<div id="reset-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-title" id="reset-modal-title"></div>
+    <div class="modal-body" id="reset-modal-body"></div>
+    <input class="pwd-input" id="reset-pwd" type="password" placeholder="הזן סיסמת איפוס..." />
+    <div class="pwd-error" id="pwd-error">סיסמה שגויה, נסה שנית</div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeResetModal()">ביטול</button>
+      <button class="modal-del" id="reset-confirm-btn" onclick="executeReset()">אפס הכל</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div id="modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">ביטול</button>
+      <button class="modal-del" id="modal-confirm" onclick="executeModal()"></button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const sb = supabase.createClient(
+  'https://ikoaeeaqfglqdouxyvrp.supabase.co',
+  'sb_publishable_QGW0QwQ5SR4iy5_BdwAz6Q__BScYsca'
+);
+
+const MONTHS = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+const nowD = new Date();
+document.getElementById('today-date').textContent = `${nowD.getDate()} ב${MONTHS[nowD.getMonth()]} ${nowD.getFullYear()}`;
+
+// ── STATE ──
+let activeTickets  = { tech: [], maint: [] }; // not done
+let doneTickets    = { tech: [], maint: [] }; // done, not archived
+let archiveTickets = { tech: [], maint: [] }; // done + archived
+
+let timeFilter   = 'all';
+let statusFilter = 'all';
+let archiveTab   = 'tech';
+let archTimeFilter = 'all';
+let currentView  = 'main';
+let pendingAction = null; // { type, fn }
+
+// ── HELPERS ──
+function timeAgo(ts) {
+  const d = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
+  if (d < 60) return 'עכשיו';
+  if (d < 3600) return `לפני ${Math.floor(d/60)} דק׳`;
+  if (d < 86400) return `לפני ${Math.floor(d/3600)} שע׳`;
+  return `לפני ${Math.floor(d/86400)} ימים`;
+}
+function fmtDate(ts) { return new Date(ts).toLocaleString('he-IL'); }
+function daysAgo(days) { return new Date(Date.now() - days * 86400000); }
+
+// ── LOAD ──
+async function load() {
+  const { data, error } = await sb.from('tickets').select('*').order('created_at', { ascending: false });
+  if (error) { console.error(error); return; }
+  const all = data || [];
+  activeTickets.tech   = all.filter(t => t.type==='tech'  && !t.done && !t.archived);
+  activeTickets.maint  = all.filter(t => t.type==='maint' && !t.done && !t.archived);
+  doneTickets.tech     = all.filter(t => t.type==='tech'  && t.done  && !t.archived);
+  doneTickets.maint    = all.filter(t => t.type==='maint' && t.done  && !t.archived);
+  // Archive = ALL done tickets (whether archived flag or not) — so done is always visible in archive
+  archiveTickets.tech  = all.filter(t => t.type==='tech'  && (t.done || t.archived));
+  archiveTickets.maint = all.filter(t => t.type==='maint' && (t.done || t.archived));
+  renderAll();
+  if (currentView === 'archive') renderArchive();
+}
+
+// ── MAIN VIEW ──
+function applyTimeFilter(list) {
+  const ms = { today:86400000, week:604800000, month:2592000000 };
+  if (!ms[timeFilter]) return list;
+  return list.filter(t => (Date.now()-new Date(t.created_at).getTime()) < ms[timeFilter]);
+}
+function applyStatusFilter(list) {
+  if (statusFilter==='open')     return list.filter(t=>!t.done && t.status !== 'progress');
+  if (statusFilter==='progress') return list.filter(t=>t.status==='progress' && !t.done);
+  if (statusFilter==='done')     return list.filter(t=>t.done);
+  if (statusFilter==='urgent')   return list.filter(t=>t.prio==='urgent'&&!t.done);
+  // 'all' = active + done (not archived)
+  return [...activeTickets[list===activeTickets.tech?'tech':'maint'],
+          ...doneTickets[list===activeTickets.tech?'tech':'maint']];
+}
+
+function renderAll() {
+  ['tech','maint'].forEach(type => {
+    const open   = activeTickets[type].length;
+    const done   = doneTickets[type].length;
+    const urgent = activeTickets[type].filter(t=>t.prio==='urgent').length;
+    const progress = [...(activeTickets[type]||[]), ...(doneTickets[type]||[])].filter(t => t.status === 'progress' && !t.done).length;
+    document.getElementById(`${type}-open`).textContent       = open;
+    document.getElementById(`${type}-done-count`).textContent = done;
+    const progEl = document.getElementById(`${type}-progress-count`);
+    if (progEl) progEl.textContent = progress;
+    const pill = document.getElementById(`${type}-urgent-pill`);
+    if (urgent>0){pill.textContent=`${urgent} דחופות!`;pill.style.display='';}
+    else pill.style.display='none';
+    renderList(type);
+  });
+}
+
+function renderList(type) {
+  let list = statusFilter==='all'
+    ? [...activeTickets[type], ...doneTickets[type]]
+    : statusFilter==='open'     ? activeTickets[type].filter(t=>t.status !== 'progress')
+    : statusFilter==='progress' ? [...activeTickets[type], ...doneTickets[type]].filter(t=>t.status==='progress' && !t.done)
+    : statusFilter==='done'     ? doneTickets[type]
+    : activeTickets[type].filter(t=>t.prio==='urgent');
+  list = applyTimeFilter(list);
+  document.getElementById(`${type}-col-count`).textContent = `${list.length} קריאות`;
+  const con = document.getElementById('list-'+type);
+  if (!list.length){con.innerHTML='<div class="empty-state">אין קריאות</div>';return;}
+  con.innerHTML = list.map(t=>ticketHTML(t,false)).join('');
+}
+
+function ticketHTML(t, inArchive) {
+  const cls = inArchive ? 'is-done' : (t.done?'is-done':t.status==='progress'?'is-progress':'') + (t.prio==='urgent'&&!t.done?' is-urgent':'');
+  return `<div class="ticket-card ${cls}">
+    <div class="tc-top">
+      <div class="tc-badges">
+        <span class="badge b-class">${t.cls}</span>
+        ${t.prio==='urgent'&&!t.done?'<span class="badge b-urgent">דחוף</span>':''}
+        ${t.done?'<span class="badge b-done">טופל</span>':t.status==='progress'?'<span class="badge" style="background:var(--amber-bg);color:var(--amber);">⏳ בטיפול</span>':'<span class="badge b-open">פתוח</span>'}
+        ${t.archived?'<span class="badge b-arch">ארכיון</span>':''}
+      </div>
+      <span class="tc-time">${timeAgo(t.created_at)}</span>
+    </div>
+    <div class="tc-desc">${t.description}</div>
+    <div class="tc-reporter">ע״י <strong>${t.name}</strong></div>
+    ${t.note?`<div class="tc-note">📝 ${t.note}</div>`:''}
+    ${t.image_url?`<button class="action-btn" style="font-size:12px;margin-top:4px;" onclick="showImagePopup('${t.image_url}')" style="color:var(--text);border-color:var(--border2);">🖼️ צפה בתמונה</button>`:''}
+  </div>`;
+}
+
+// ── FILTERS ──
+function setTimeFilter(f, btn) {
+  timeFilter = f;
+  document.getElementById('time-btns').querySelectorAll('.gf-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); renderAll();
+}
+function setStatusFilter(f, btn) {
+  statusFilter = f;
+  document.getElementById('status-btns').querySelectorAll('.gf-btn').forEach(b=>b.classList.remove('active','active-done','active-urgent'));
+  if (f==='done') btn.classList.add('active-done');
+  else if (f==='urgent') btn.classList.add('active-urgent');
+  else btn.classList.add('active');
+  renderAll();
+}
+
+// ── NAVIGATION ──
+function showView(view, btn) {
+  currentView = view;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if (view==='archive') renderArchive();
+  if (view==='reset') updateResetCounts();
+}
+
+function updateResetCounts() {
+  updateImagesCount();
+  ['tech','maint'].forEach(type => {
+    const total = [
+      ...(activeTickets[type]||[]),
+      ...(doneTickets[type]||[]),
+      ...(archiveTickets[type]||[])
+    ].length;
+    const el = document.getElementById('reset-'+type+'-count');
+    if (el) el.textContent = total + ' קריאות סה״כ (פתוחות + טופלו + ארכיון)';
+  });
+}
+
+// ── ARCHIVE VIEW ──
+function setArchiveTab(tab) {
+  archiveTab = tab;
+  ['tech','maint'].forEach(t=>{
+    document.getElementById('arch-tab-'+t).className = 'arch-tab'+(t===tab?` active-${t}`:'');
+  });
+  renderArchive();
+}
+
+function setArchTimeFilter(f, btn) {
+  archTimeFilter = f;
+  document.getElementById('arch-time-btns').querySelectorAll('.gf-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderArchive();
+}
+
+function filterArchiveByTime(list) {
+  const ms = { month:2592000000, '3months':7776000000, halfyear:15552000000, year:31536000000 };
+  if (!ms[archTimeFilter]) return list;
+  return list.filter(t=>(Date.now()-new Date(t.created_at).getTime()) < ms[archTimeFilter]);
+}
+
+function renderArchive() {
+  const allTech  = archiveTickets.tech;
+  const allMaint = archiveTickets.maint;
+  document.getElementById('arch-tech-count').textContent  = `${allTech.length}`;
+  document.getElementById('arch-maint-count').textContent = `${allMaint.length}`;
+  let list = filterArchiveByTime(archiveTickets[archiveTab]);
+  const con = document.getElementById('archive-list');
+  if (!list.length){
+    con.innerHTML='<div class="empty-state">אין קריאות בארכיון לפי הסינון הנוכחי.<br>קריאות מופיעות כאן אוטומטית ברגע שמסמנים אותן כטופלות.</div>';
+    return;
+  }
+  con.innerHTML = list.map(t=>ticketHTML(t,true)).join('');
+}
+
+// ── "מחק טופלו" בדוח ראשי → מעביר לארכיון ──
+function confirmArchive(type) {
+  const count = doneTickets[type].length;
+  if (!count){alert('אין קריאות טופלו להסרה');return;}
+  const label = type==='tech'?'לבורנט מחשבים':'אב הבית';
+  showModal(
+    'הסרת קריאות טופלו מהדוח',
+    `${count} קריאות טופלו של <strong>${label}</strong> יוסרו מהדוח הראשי<br>ויישמרו בארכיון לצפייה עתידית.`,
+    `הסר לארכיון`,
+    async () => {
+      const ids = doneTickets[type].map(t=>t.id);
+      const {error} = await sb.from('tickets').update({archived:true}).in('id',ids);
+      if (error){alert('שגיאה: '+error.message);return;}
+      await load();
+    }
+  );
+}
+
+// ── מחיקה מהארכיון לפי גיל ──
+function confirmAgeDelete(days) {
+  const cutoff = daysAgo(days);
+  const list = archiveTickets[archiveTab].filter(t=>new Date(t.created_at)<cutoff);
+  if (!list.length){alert(`אין קריאות בארכיון ישנות מעל ${days} ימים`);return;}
+  const label = archiveTab==='tech'?'מחשוב':'תחזוקה';
+  const ageLabel = days===30?'חודש':days===90?'3 חודשים':days===180?'חצי שנה':days===365?'שנה':'שנתיים';
+  showModal(
+    'מחיקה מהארכיון',
+    `פעולה זו תמחק לצמיתות <strong>${list.length} קריאות</strong> של ${label}<br>שנפתחו לפני יותר מ-${ageLabel}.<br><br>לא ניתן לשחזר לאחר המחיקה.`,
+    'מחק לצמיתות',
+    async () => {
+      const ids = list.map(t=>t.id);
+      const {error} = await sb.from('tickets').delete().in('id',ids);
+      if (error){alert('שגיאה: '+error.message);return;}
+      await load();
+    }
+  );
+}
+
+// ── MODAL ──
+function showModal(title, body, confirmLabel, fn) {
+  pendingAction = fn;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal-confirm').textContent = confirmLabel;
+  document.getElementById('modal').style.display = 'flex';
+}
+function closeModal() {
+  document.getElementById('modal').style.display = 'none';
+  pendingAction = null;
+}
+async function executeModal() {
+  if (!pendingAction) return;
+  const btn = document.getElementById('modal-confirm');
+  btn.textContent='מבצע...'; btn.disabled=true;
+  await pendingAction();
+  btn.disabled=false;
+  closeModal();
+}
+
+// ── PRINT ──
+function printCol(type) {
+  let list = statusFilter==='all'
+    ? [...activeTickets[type],...doneTickets[type]]
+    : statusFilter==='open' ? activeTickets[type]
+    : statusFilter==='done' ? doneTickets[type]
+    : activeTickets[type].filter(t=>t.prio==='urgent');
+  list = applyTimeFilter(list);
+  const label = type==='tech'?'💻 מחשוב':'🔧 תחזוקה';
+  openPrintWindow(buildPrintHTML(label, list));
+}
+function printArchive() {
+  const list = filterArchiveByTime(archiveTickets[archiveTab]);
+  const label = archiveTab==='tech'?'💻 ארכיון מחשוב':'🔧 ארכיון תחזוקה';
+  openPrintWindow(buildPrintHTML(label, list));
+}
+function buildPrintHTML(title, list) {
+  const rows = list.map(t=>`<tr>
+    <td>${t.name}</td><td>${t.cls}</td><td>${t.description}</td>
+    <td>${t.prio==='urgent'?'דחוף':'רגיל'}</td>
+    <td>${t.done?'טופל':t.status==='progress'?'בתהליך טיפול':'פתוח'}</td>
+    <td>${t.note||''}</td>
+    <td>${fmtDate(t.created_at)}</td>
+  </tr>`).join('');
+  return `<!DOCTYPE html><html dir="rtl" lang="he"><head><meta charset="UTF-8"/>
+    <title>${title} – הראל</title>
+    <style>@page{size:A4 landscape;}body{font-family:Arial,sans-serif;direction:rtl;padding:20px;color:#000;}
+    h2{margin-bottom:3px;font-size:17px;}.sub{font-size:11px;color:#666;margin-bottom:14px;}
+    table{width:100%;border-collapse:collapse;font-size:11px;}
+    th{background:#eee;border:1px solid #bbb;padding:5px 7px;text-align:right;}
+    td{border:1px solid #ddd;padding:4px 7px;vertical-align:top;}
+    tr:nth-child(even){background:#f8f8f8;}</style>
+    <meta property="og:title" content="דוח מנהלת – הראל" />
+  <meta property="og:description" content="דוח וניהול קריאות שירות" />
+  <meta property="og:type" content="website" />
+  <meta name="description" content="דוח וניהול קריאות שירות" />
+</head><body>
+    <h2>${title.includes('מחשוב') ? 'דוח קריאות מחשוב - אולפנית הראל כפר סבא' : title.includes('תחזוקה') ? 'דוח קריאות תחזוקה - אולפנית הראל כפר סבא' : title + ' – אולפנית הראל כפר סבא'}</h2>
+    <div class="sub">הודפס: ${fmtDate(Date.now())} | סה״כ: ${list.length} קריאות</div>
+    <table><thead><tr><th>שם</th><th>כיתה</th><th>תיאור</th><th>דחיפות</th><th>סטטוס</th><th>הערה</th><th>תאריך</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  
+<div id="img-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;display:none;align-items:center;justify-content:center;padding:1rem;" onclick="closeImagePopup()">
+  <div style="position:relative;max-width:90vw;max-height:90vh;" onclick="event.stopPropagation()">
+    <img id="img-popup-src" style="max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px;" />
+    <button onclick="closeImagePopup()" style="position:absolute;top:-14px;left:-14px;background:var(--red);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+  </div>
+</div>
+</body></html>`;
+}
+function openPrintWindow(html) {
+  const w = window.open('','_blank','width=900,height=700');
+  w.document.write(html); w.document.close(); w.focus();
+  setTimeout(()=>w.print(),400);
+}
+
+// ── CSV ──
+function exportCSV(type) {
+  let list = statusFilter==='all'
+    ? [...activeTickets[type],...doneTickets[type]]
+    : statusFilter==='open' ? activeTickets[type]
+    : statusFilter==='done' ? doneTickets[type]
+    : activeTickets[type].filter(t=>t.prio==='urgent');
+  list = applyTimeFilter(list);
+  doExportCSV(list, type==='tech'?'מחשוב':'תחזוקה');
+}
+function exportArchiveCSV() {
+  const list = filterArchiveByTime(archiveTickets[archiveTab]);
+  doExportCSV(list, (archiveTab==='tech'?'מחשוב':'תחזוקה')+'-ארכיון');
+}
+function doExportCSV(list, label) {
+  const rows=[['שם','כיתה','תיאור','דחיפות','סטטוס','הערה','תאריך']];
+  list.forEach(t=>rows.push([t.name,t.cls,t.description,
+    t.prio==='urgent'?'דחוף':'רגיל',t.done?'טופל':t.status==='progress'?'בתהליך טיפול':'פתוח',
+    t.note||'',fmtDate(t.created_at)]));
+  const csv='\uFEFF'+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`הראל-${label}-${new Date().toLocaleDateString('he-IL')}.csv`;
+  a.click();
+}
+
+// ── REALTIME ──
+sb.channel('admin-live')
+  .on('postgres_changes',{event:'*',schema:'public',table:'tickets'},load)
+  .subscribe();
+
+function showImagePopup(url) {
+  document.getElementById('img-popup-src').src = url;
+  document.getElementById('img-popup').style.display = 'flex';
+}
+function closeImagePopup() {
+  document.getElementById('img-popup').style.display = 'none';
+}
+
+load();
+
+// ── RESET ──
+const RESET_PASSWORD = '260398';
+let pendingResetType = null;
+
+function openReset(type) {
+  const delOpen = document.getElementById(type+'-del-open').checked;
+  const delDone = document.getElementById(type+'-del-done').checked;
+  if (!delOpen && !delDone) { alert('נא לסמן לפחות אפשרות אחת למחיקה'); return; }
+
+  pendingResetType = type;
+  const label = type === 'tech' ? 'לבורנט מחשבים' : 'אב הבית';
+  const openCount = (activeTickets[type]||[]).length;
+  const doneCount = (doneTickets[type]||[]).length;
+
+  let what = [];
+  if (delOpen) what.push('<strong>' + openCount + ' קריאות פתוחות</strong>');
+  if (delDone) what.push('<strong>' + doneCount + ' קריאות טופלו</strong>');
+
+  document.getElementById('reset-modal-title').textContent = 'איפוס ' + label;
+  document.getElementById('reset-modal-body').innerHTML =
+    'פעולה זו תמחק לצמיתות את ' + what.join(' ו-') + ' של ' + label + '.<br>הארכיון לא יימחק.<br><br>הזן סיסמה לאישור:';
+  document.getElementById('reset-pwd').value = '';
+  document.getElementById('pwd-error').style.display = 'none';
+  document.getElementById('reset-confirm-btn').onclick = executeReset;
+  document.getElementById('reset-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('reset-pwd').focus(), 100);
+}
+
+function closeResetModal() {
+  document.getElementById('reset-modal').style.display = 'none';
+  pendingResetType = null;
+}
+
+async function executeReset() {
+  const pwd = document.getElementById('reset-pwd').value;
+  if (pwd !== RESET_PASSWORD) {
+    document.getElementById('pwd-error').style.display = 'block';
+    document.getElementById('reset-pwd').value = '';
+    document.getElementById('reset-pwd').focus();
+    return;
+  }
+  const btn = document.getElementById('reset-confirm-btn');
+  btn.textContent = 'מוחק...'; btn.disabled = true;
+  const delOpen = document.getElementById(pendingResetType+'-del-open').checked;
+  const delDone = document.getElementById(pendingResetType+'-del-done').checked;
+  let error = null;
+
+  // פתוחות — העבר לארכיון
+  if (delOpen) {
+    const res = await sb.from('tickets').update({ archived: true })
+      .eq('type', pendingResetType).eq('done', false).eq('archived', false);
+    error = res.error;
+  }
+  // טופלו — העבר לארכיון
+  if (!error && delDone) {
+    const res = await sb.from('tickets').update({ archived: true })
+      .eq('type', pendingResetType).eq('done', true).eq('archived', false);
+    error = res.error;
+  }
+  btn.textContent = 'אפס הכל'; btn.disabled = false;
+  if (error) { alert('שגיאה: ' + error.message); return; }
+  closeResetModal();
+  await load();
+}
+
+
+
+// ── IMAGE MANAGEMENT ──
+let imgStatusFilter = 'all';
+
+function setImgFilter(f, btn) {
+  imgStatusFilter = f;
+  document.getElementById('img-status-btns').querySelectorAll('button').forEach(b => 
+    b.style.borderColor = 'rgba(255,107,107,0.3)');
+  btn.style.borderColor = 'var(--red)';
+  updateImagesCount();
+}
+
+function updateImagesCount() {
+  const all = [...(activeTickets.tech||[]), ...(doneTickets.tech||[]),
+               ...(activeTickets.maint||[]), ...(doneTickets.maint||[])];
+  let withImages = all.filter(t => t.image_url);
+  if (imgStatusFilter === 'done')     withImages = withImages.filter(t => t.done);
+  if (imgStatusFilter === 'progress') withImages = withImages.filter(t => t.status === 'progress');
+  const el = document.getElementById('images-count');
+  if (el) el.textContent = withImages.length + ' תמונות';
+}
+
+async function deleteImages(days) {
+  const all = [...(activeTickets.tech||[]), ...(doneTickets.tech||[]),
+               ...(activeTickets.maint||[]), ...(doneTickets.maint||[]),
+               ...(archiveTickets.tech||[]), ...(archiveTickets.maint||[])];
+  
+  let targets = all.filter(t => t.image_url);
+  if (imgStatusFilter === 'done')     targets = targets.filter(t => t.done);
+  if (imgStatusFilter === 'progress') targets = targets.filter(t => t.status === 'progress');
+  if (days > 0) {
+    const cutoff = Date.now() - days * 86400000;
+    targets = targets.filter(t => new Date(t.created_at).getTime() < cutoff);
+  }
+
+  if (!targets.length) { alert('אין תמונות למחיקה לפי הסינון הנוכחי'); return; }
+
+  const ageLabel = days === 0 ? 'כל התמונות' : `מעל ${days} ימים`;
+  if (!confirm(`מחק ${targets.length} תמונות (${ageLabel})?`)) return;
+
+  for (const t of targets) {
+    const path = t.image_url.split('/ticket-images/')[1];
+    if (path) await sb.storage.from('ticket-images').remove([path]);
+    await sb.from('tickets').update({ image_url: null }).eq('id', t.id);
+  }
+
+  await load();
+  alert(`נמחקו ${targets.length} תמונות בהצלחה`);
+}
+
+// ── ARCHIVE RESET ──
+function openArchiveReset() {
+  const total = (archiveTickets.tech||[]).length + (archiveTickets.maint||[]).length;
+  if (!total) { alert('הארכיון ריק'); return; }
+  document.getElementById('reset-modal-title').textContent = 'איפוס ארכיון מלא';
+  document.getElementById('reset-modal-body').innerHTML =
+    `פעולה זו תמחק לצמיתות את <strong>כל ${total} הקריאות בארכיון</strong>.<br>לא ניתן לשחזר.<br><br>הזן סיסמה לאישור:`;
+  document.getElementById('reset-pwd').value = '';
+  document.getElementById('pwd-error').style.display = 'none';
+  // override execute for archive
+  document.getElementById('reset-confirm-btn').onclick = executeArchiveReset;
+  document.getElementById('reset-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('reset-pwd').focus(), 100);
+}
+
+async function executeArchiveReset() {
+  const pwd = document.getElementById('reset-pwd').value;
+  if (pwd !== RESET_PASSWORD) {
+    document.getElementById('pwd-error').style.display = 'block';
+    document.getElementById('reset-pwd').value = '';
+    document.getElementById('reset-pwd').focus();
+    return;
+  }
+  const btn = document.getElementById('reset-confirm-btn');
+  btn.textContent = 'מוחק...'; btn.disabled = true;
+  const { error } = await sb.from('tickets').delete().eq('archived', true);
+  // also delete done tickets that are in archive view (done=true, archived=false but treated as archive)
+  if (!error) {
+    await sb.from('tickets').delete().eq('done', true).eq('archived', false);
+  }
+  btn.textContent = 'אפס הכל'; btn.disabled = false;
+  // restore normal onclick
+  document.getElementById('reset-confirm-btn').onclick = executeReset;
+  if (error) { alert('שגיאה: ' + error.message); return; }
+  closeResetModal();
+  await load();
+}
+
+// close reset modal on Enter key
+document.getElementById('reset-pwd').addEventListener('keydown', e => {
+  if (e.key === 'Enter') executeReset();
+});
+
+</script>
+
+<div id="img-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;display:none;align-items:center;justify-content:center;padding:1rem;" onclick="closeImagePopup()">
+  <div style="position:relative;max-width:90vw;max-height:90vh;" onclick="event.stopPropagation()">
+    <img id="img-popup-src" style="max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px;" />
+    <button onclick="closeImagePopup()" style="position:absolute;top:-14px;left:-14px;background:var(--red);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+  </div>
+</div>
+</body>
+</html>
